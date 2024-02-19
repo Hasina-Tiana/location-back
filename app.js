@@ -16,9 +16,11 @@ app.use(bodyParser.json());
 
 const apiRouteLocation = require('./route/locationRoute');
 const apiRouteUtilisateur = require('./route/utilisateurRoute');
+const apiRouteVehicule = require('./route/vehiculeRoute');
 
 app.use('/api', apiRouteLocation);
 app.use('/api', apiRouteUtilisateur);
+app.use('/api', apiRouteVehicule);
 
 const server = http.createServer(app);
 

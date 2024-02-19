@@ -27,6 +27,16 @@ async function emitLocationUpdate() {
     }
 }
 
+async function emitVehiculeUpdate() {
+    const vehicules = await prisma.vehicule.findMany({});
+    if (io) {
+        io.emit('vehiculeUpdate', vehicules);
+        console.log('Vehicule data updated and emitted:', vehicules);
+    } else {
+        console.error('Socket.io is not initialized.');
+    }
+}
+
 module.exports = {
     initializeSocket,
     emitLocationUpdate,
