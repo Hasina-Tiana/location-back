@@ -40,4 +40,5 @@ async function emitVehiculeUpdate() {
 module.exports = {
     initializeSocket,
     emitLocationUpdate,
+    emitVehiculeUpdate,
 };
