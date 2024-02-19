@@ -1,10 +1,30 @@
 const locationModel = require('../model/locationModel');
+const { emitLocationUpdate } = require('../socket');
+
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 module.exports = {
     createLocation: async (req, res) => {
         try {
+            // Vérifier si un fichier a été uploadé
+            if (!req.file) {
+                return res.status(400).json({ error: 'Veuillez sélectionner une photo' });
+            }
+
+            // Récupérer l'URL de l'image uploadée
+            const imageUrl = req.file.path; // Remplacez par le chemin où l'image est stockée
+
+            // Récupérer les données de la requête
             const locationData = req.body;
+
+            // Ajouter l'URL de l'image aux données de la location
+            locationData.imageUrl = imageUrl;
+
+            // Créer la location avec les données et l'URL de l'image
             const newLocation = await locationModel.createLocation(locationData);
+
+            emitLocationUpdate();
             res.json(newLocation);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -14,6 +34,7 @@ module.exports = {
     getAllLocation: async (req, res) => {
         try {
             const locations = await locationModel.getAllLocation();
+            emitLocationUpdate();
             res.json(locations);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -46,6 +67,7 @@ module.exports = {
             if(!updateLocation) {
                 return res.status(400).json({ error: 'Location not found' });
             }
+            emitLocationUpdate();
             res.json(updateLocation);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -63,6 +85,7 @@ module.exports = {
             if(!deleteLocation) {
                 return res.status(400).json({ error: 'Location not found' });
             }
+            emitLocationUpdate();
             res.json([message = 'La location a bien été supprimée']);
         } catch (error) {
             res.status(500).json({ error: error.message });

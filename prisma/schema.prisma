@@ -11,18 +11,34 @@ datasource db {
 }
 
 model Location {
-  idLoc          Int    @id @default(autoincrement())
+  idLoc          Int         @id @default(autoincrement())
   numLoc         String
   nomLoc         String
-  designVoiture  String
+  dateDepart     DateTime
+  dateArrivee    DateTime
   nombreJour     Int
   tauxJournalier Float
+  utilisateur    Utilisateur @relation(fields: [userId], references: [idUser])
+  vehicule       Vehicule    @relation(fields: [vehiculeId], references: [idVehicule])
+  userId         Int         @unique
+  vehiculeId     Int
+}
+
+model Vehicule {
+  idVehicule  Int        @id @default(autoincrement())
+  nomVehicule String
+  details     String
+  locations   Location[]
 }
 
 model Utilisateur {
-  idUser       Int    @id @default(autoincrement())
-  nomUser      String
-  prenomUser   String
-  adresseEmail String
-  motDePasse   String
+  idUser          Int       @id @default(autoincrement())
+  nomUser         String
+  prenomUser      String
+  numeroTelephone Int
+  numeroCIN       String
+  adresse         String
+  username        String    @unique
+  password        String
+  location        Location?
 }

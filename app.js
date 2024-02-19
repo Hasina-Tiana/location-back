@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const http = require('http');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,9 +15,16 @@ app.use(cors({
 app.use(bodyParser.json());
 
 const apiRouteLocation = require('./route/locationRoute');
+const apiRouteUtilisateur = require('./route/utilisateurRoute');
 
 app.use('/api', apiRouteLocation);
+app.use('/api', apiRouteUtilisateur);
 
-app.listen(port, () => {
+const server = http.createServer(app);
+
+const { initializeSocket } = require('./socket');
+initializeSocket(server);
+
+server.listen(port, () => {
     console.log(`Le serveur API écoute sur le port ${port}`);
 });
