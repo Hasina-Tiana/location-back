@@ -1,10 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(cors({
     origin: '*',

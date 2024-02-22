@@ -73,5 +73,14 @@ module.exports = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    }
+    },
+
+    getAllUtilisateurs: async (req, res) => {
+        try {
+            const utilisateurs = await utilisateurModel.getAllUtilisateurs();
+            res.json(utilisateurs);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
 }

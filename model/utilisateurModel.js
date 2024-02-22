@@ -29,4 +29,10 @@ module.exports = {
             }
         })
     },
+
+    getAllUtilisateurs: async () => prisma.utilisateur.findMany({
+        orderBy: {
+            idUser: 'asc'
+        }
+    }),
 }

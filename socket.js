@@ -37,6 +37,14 @@ async function emitVehiculeUpdate() {
     }
 }
 
+prisma.$on('locationUpdated', () => {
+    emitLocationUpdate();
+});
+
+prisma.$on('vehiculeUpdated', () => {
+    emitVehiculeUpdate();
+});
+
 module.exports = {
     initializeSocket,
     emitLocationUpdate,

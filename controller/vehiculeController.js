@@ -10,20 +10,20 @@ module.exports = {
             if (!req.file) {
                 return res.status(400).json({ error: 'Veuillez sélectionner une photo' });
             }
-
-            const imageUrl = req.file.path;
+    
+            const imageUrl = `${req.file.filename}`;
             const vehiculeData = req.body;
-
-            vehiculeData.imageUrl = imageUrl;
-
+    
+            vehiculeData.imgURL = imageUrl;
+    
             const newVehicule = await vehiculeModel.createVehicule(vehiculeData);
-
+    
             emitVehiculeUpdate();
             res.json(newVehicule);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    },
+    },    
 
     getAllVehicules: async (req, res) => {
         try {
@@ -43,6 +43,7 @@ module.exports = {
             if(!vehicule) {
                 return res.status(404).json({ error: 'Vehicule not found' });
             }
+            emitVehiculeUpdate();
             res.json(vehicule);
         } catch (error) {
             res.status(500).json({ error: error.message });

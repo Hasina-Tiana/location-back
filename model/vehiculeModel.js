@@ -2,9 +2,20 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient;
 
 module.exports = {
-    createVehicule: async (data) => prisma.vehicule.create({data}),
+    createVehicule: async (data) => prisma.vehicule.create({
+        data: {
+            nomVehicule: data.nomVehicule,
+            details: data.details,
+            tauxJournalier: parseInt(data.tauxJournalier),
+            imgURL: data.imgURL,
+        },
+    }),
 
-    getAllVehicule: async () => prisma.vehicule.findMany({}),
+    getAllVehicules: async () => prisma.vehicule.findMany({
+        orderBy: {
+            idVehicule: 'asc'
+        }
+    }),
 
     getVehiculeById: async (vehiculeId) => prisma.vehicule.findUnique({
         where: {
@@ -17,11 +28,10 @@ module.exports = {
             idVehicule: vehiculeId,
         },
         data: {
-            numLoc: data.numLoc,
-            nomLoc: data.nomLoc,
-            designVoiture: data.designVoiture,
-            nombreJour: data.nombreJour,
-            tauxJournalier: data.tauxJournalier
+            nomVehicule: data.nomVehicule,
+            details: data.details,
+            tauxJournalier: parseInt(data.tauxJournalier),
+            imgURL: data.imgURL,
         }
     }),
 
