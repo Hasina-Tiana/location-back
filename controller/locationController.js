@@ -11,14 +11,30 @@ module.exports = {
             const vehicule = await prisma.vehicule.findUnique({
                 where: { idVehicule: locationData.vehiculeId }
             });
-
+    
             const nombreJour = differenceInDays(new Date(locationData.dateArrivee), new Date(locationData.dateDepart));
-
+    
             const loyer = nombreJour * vehicule.tauxJournalier;
-
+    
             locationData.nombreJour = nombreJour;
             locationData.loyer = loyer;
-
+    
+            const lastLocation = await prisma.location.findFirst({
+                orderBy: { idLoc: 'desc' },
+                select: { numLoc: true }
+            });
+    
+            let nextNumLoc = 'LOC0001';
+    
+            if (lastLocation) {
+                const lastNumLoc = lastLocation.numLoc;
+                const lastNum = parseInt(lastNumLoc.substring(3));
+                const nextNum = lastNum + 1;
+                nextNumLoc = `LOC${nextNum.toString().padStart(4, '0')}`;
+            }
+    
+            locationData.numLoc = nextNumLoc;
+    
             const newLocation = await locationModel.createLocation(locationData);
             emitLocationUpdate();
             res.json(newLocation);
@@ -26,6 +42,7 @@ module.exports = {
             res.status(500).json({ error: error.message });
         }
     },
+    
 
     getAllLocation: async (req, res) => {
         try {
@@ -85,6 +102,44 @@ module.exports = {
             }
             emitLocationUpdate();
             res.json([message = 'La location a bien été supprimée']);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    getMinLoyer: async (req, res) => {
+        try {
+            const minLoyer = await prisma.location.findFirst({
+                orderBy: { loyer: 'asc' },
+                select: { loyer: true }
+            });
+            await emitMinLoyerUpdate(minLoyer);
+            res.json(minLoyer);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },    
+
+    getMaxLoyer: async (req, res) => {
+        try {
+            const maxLoyer = await prisma.location.findFirst({
+                orderBy: { loyer: 'desc' },
+                select: { loyer: true }
+            });
+            emitLocationUpdate();
+            res.json(maxLoyer);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    getTotalLoyers: async (req, res) => {
+        try {
+            const totalLoyers = await prisma.location.aggregate({
+                _sum: { loyer: true }
+            });
+            emitLocationUpdate();
+            res.json(totalLoyers);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

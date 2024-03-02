@@ -6,7 +6,12 @@ const prisma = new PrismaClient();
 let io;
 
 function initializeSocket(server) {
-    io = socketIo(server);
+    io = socketIo(server, {
+        cors: {
+            origin: "http://localhost:5173",
+            methods: ["GET", "POST"]
+        }
+    });
 
     io.on('connection', (socket) => {
         console.log('Client connected:', socket.id);
@@ -37,6 +42,25 @@ async function emitVehiculeUpdate() {
     }
 }
 
+async function emitUserUpdate() {
+    const users = await prisma.utilisateur.findMany({});
+    if (io) {
+        io.emit('userUpdate', users);
+        console.log('User data updated and emitted:', users);
+    } else {
+        console.error('Socket.io is not initialized.');
+    }
+}
+
+async function emitMinLoyerUpdate(minLoyer) {
+    if (io) {
+        io.emit('minLoyerUpdated', minLoyer);
+        console.log('MinLoyer data updated and emitted:', minLoyer);
+    } else {
+        console.error('Socket.io is not initialized.');
+    }
+}
+
 prisma.$on('locationUpdated', () => {
     emitLocationUpdate();
 });
@@ -45,8 +69,17 @@ prisma.$on('vehiculeUpdated', () => {
     emitVehiculeUpdate();
 });
 
+prisma.$on('userUpdated', () => {
+    emitUserUpdate();
+});
+
+prisma.$on('minLoyerUpdated', () => {
+    emitMinLoyerUpdate();
+});
+
 module.exports = {
     initializeSocket,
     emitLocationUpdate,
     emitVehiculeUpdate,
+    emitUserUpdate,
 };

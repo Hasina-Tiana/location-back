@@ -35,4 +35,16 @@ module.exports = {
             idUser: 'asc'
         }
     }),
+
+    getUtilisateurById: async(userId) => prisma.utilisateur.findUnique({
+        where: {
+            idUser: parseInt(userId, 10)
+        }
+    }),
+
+    deleteUser: async(userId) => prisma.utilisateur.delete({
+        where: {
+            idUser: parseInt(userId, 10)
+        }
+    }),
 }
