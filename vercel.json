@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "app.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "env": {
+        "DATABASE_URL": "postgres://jqwygfsa:QYG3AMCJKr8eOwEBM7qdjkyBBc_f2NkQ@silly.db.elephantsql.com/jqwygfsa"
+    }
+}
