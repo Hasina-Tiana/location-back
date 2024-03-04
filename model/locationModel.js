@@ -37,26 +37,26 @@ module.exports = {
     }),
 
     updateLocation: async (locId, data) => {
-        return prisma.location.update({
-            where: {
-                idLoc: locId,
-            },
-            data: {
-                numLoc: data.numLoc,
-                nomLoc: data.nomLoc,
-                dateDepart: data.dateDepart,
-                dateArrivee: data.dateArrivee,
-                nombreJour: data.nombreJour,
-                tauxJournalier: data.tauxJournalier,
-                utilisateur: {
-                    connect: { idUser: data.userId }
+        try {
+            const updateLocation = await prisma.location.update({
+                where: {
+                    idLoc: locId,
                 },
-                vehicule: {
-                    connect: { idVehicule: data.vehiculeId }
+                data: {
+                    dateDepart: data.dateDepart,
+                    dateArrivee: data.dateArrivee,
+                    nombreJour: data.nombreJour,
+                    loyer: data.loyer,
+                    vehicule: {
+                        connect: { idVehicule: data.vehiculeId }
+                    }
                 }
-            }
-        });
-    },
+            });
+            return updateLocation;
+        } catch (error) {
+            throw error;
+        }
+    },    
 
     deleteLocation: async (locId) => prisma.location.delete({
         where: {

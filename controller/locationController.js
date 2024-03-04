@@ -11,30 +11,30 @@ module.exports = {
             const vehicule = await prisma.vehicule.findUnique({
                 where: { idVehicule: locationData.vehiculeId }
             });
-    
+
             const nombreJour = differenceInDays(new Date(locationData.dateArrivee), new Date(locationData.dateDepart));
-    
+
             const loyer = nombreJour * vehicule.tauxJournalier;
-    
+
             locationData.nombreJour = nombreJour;
             locationData.loyer = loyer;
-    
+
             const lastLocation = await prisma.location.findFirst({
                 orderBy: { idLoc: 'desc' },
                 select: { numLoc: true }
             });
-    
+
             let nextNumLoc = 'LOC0001';
-    
+
             if (lastLocation) {
                 const lastNumLoc = lastLocation.numLoc;
                 const lastNum = parseInt(lastNumLoc.substring(3));
                 const nextNum = lastNum + 1;
                 nextNumLoc = `LOC${nextNum.toString().padStart(4, '0')}`;
             }
-    
+
             locationData.numLoc = nextNumLoc;
-    
+
             const newLocation = await locationModel.createLocation(locationData);
             emitLocationUpdate();
             res.json(newLocation);
@@ -42,7 +42,7 @@ module.exports = {
             res.status(500).json({ error: error.message });
         }
     },
-    
+
 
     getAllLocation: async (req, res) => {
         try {
@@ -70,24 +70,41 @@ module.exports = {
     },
 
     updateLocation: async (req, res) => {
+        const locationData = req.body;
+
+        const vehicule = await prisma.vehicule.findUnique({
+            where: { idVehicule: locationData.vehiculeId }
+        });
         const locationId = parseInt(req.params.idLoc);
         if (isNaN(locationId)) {
             return res.status(400).json({ error: 'Invalid locationId' });
         }
 
-        const data = req.body;
+        const { dateDepart, dateArrivee, vehiculeId } = req.body;
+        const nombreJour = differenceInDays(new Date(dateArrivee), new Date(dateDepart));
+        const loyer = nombreJour * vehicule.tauxJournalier;
+
+        const data = {
+            dateDepart,
+            dateArrivee,
+            nombreJour,
+            loyer,
+            vehiculeId,
+        };
+
         try {
-            data.loyer = data.nombreJour * data.vehicule.tauxJournalier;
             const updateLocation = await locationModel.updateLocation(locationId, data);
             if (!updateLocation) {
                 return res.status(400).json({ error: 'Location not found' });
             }
+
             emitLocationUpdate();
             res.json(updateLocation);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     },
+
 
     deleteLocation: async (req, res) => {
         const locationId = parseInt(req.params.idLoc);
@@ -113,12 +130,12 @@ module.exports = {
                 orderBy: { loyer: 'asc' },
                 select: { loyer: true }
             });
-            await emitMinLoyerUpdate(minLoyer);
+            emitLocationUpdate();
             res.json(minLoyer);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    },    
+    },
 
     getMaxLoyer: async (req, res) => {
         try {
